@@ -39,6 +39,10 @@ jobs:
 
       - run: bun run test
 
+      # `npm stage` needs npm >= 11.19; node 24 may bundle an older one.
+      - run: npm install -g npm@11.19.1
+
       # prepack (svelte-kit sync + svelte-package + publint) builds dist/.
       # Auth comes from the npm trusted publisher for this repo (no NPM_TOKEN).
-      - run: npm publish --provenance --access public
+      # Staged: nothing goes live until a maintainer runs `npm stage approve` with 2FA.
+      - run: npm stage publish --provenance --access public
