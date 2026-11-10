@@ -50,6 +50,20 @@
 		}
 		node.scrollTo({ left: start });
 	}
+
+	/** Dragged widths in px, per folder; `all` is the Option-drag width for every other column. */
+	let widths = $state<Record<string, number>>({});
+	let all = $state<number>();
+
+	function resize(path: string, width: number | undefined, every: boolean) {
+		// shortcut: fixed px floor, not tied to the font size
+		const w = width === undefined ? undefined : Math.max(96, Math.round(width));
+		if (every) {
+			all = w;
+			widths = {};
+		} else if (w === undefined) delete widths[path];
+		else widths[path] = w;
+	}
 </script>
 
 {#snippet failure(error: unknown)}
@@ -75,6 +89,8 @@
 				{selectedPath}
 				last={i === levels.length - 1}
 				{ctx}
+				width={widths[level] ?? all}
+				onresize={(width, every) => resize(level, width, every)}
 			/>
 		</svelte:boundary>
 	{/each}

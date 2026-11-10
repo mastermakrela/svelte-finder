@@ -13,7 +13,9 @@
 		openPath,
 		selectedPath,
 		last,
-		ctx
+		ctx,
+		width,
+		onresize
 	}: {
 		dir: Dir<E>;
 		/** The folder this column lists; its empty space takes drops, as in Finder. */
@@ -25,10 +27,35 @@
 		/** The open folder's column: its buttons carry `aria-pressed`. */
 		last: boolean;
 		ctx: EntryContext<E>;
+		/** Dragged width in px; unset follows `--finder-column-width`. */
+		width: number | undefined;
+		/** `undefined` resets to the default; `every` (Option held) applies to all columns. */
+		onresize: (width: number | undefined, every: boolean) => void;
 	} = $props();
+
+	let rendered = $state(0);
+	let drag: { x: number; width: number } | undefined;
+
+	function keydown(e: KeyboardEvent) {
+		const step = { ArrowLeft: -16, ArrowRight: 16 }[e.key];
+		if (step) {
+			e.preventDefault();
+			onresize(rendered + step, e.altKey);
+		} else if (e.key === 'Enter') {
+			e.preventDefault();
+			onresize(undefined, e.altKey);
+		}
+	}
 </script>
 
-<div class="column" role="group" aria-label={label} {...ctx.mover?.target(path)}>
+<div
+	class="column"
+	role="group"
+	aria-label={label}
+	style:width={width === undefined ? undefined : `${width}px`}
+	bind:offsetWidth={rendered}
+	{...ctx.mover?.target(path)}
+>
 	<DirView {dir}>
 		{#snippet children(entries)}
 			<ul>
@@ -63,6 +90,27 @@
 			</ul>
 		{/snippet}
 	</DirView>
+	<!-- a focusable separator is a widget in ARIA; Svelte's a11y check counts it as static -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+	<div
+		class="handle"
+		role="separator"
+		aria-orientation="vertical"
+		aria-label="Resize column"
+		aria-valuenow={rendered}
+		aria-valuemin={96}
+		tabindex="0"
+		onpointerdown={(e) => {
+			if (e.button !== 0) return;
+			e.currentTarget.setPointerCapture(e.pointerId);
+			drag = { x: e.clientX, width: rendered };
+		}}
+		onpointermove={(e) => drag && onresize(drag.width + e.clientX - drag.x, e.altKey)}
+		onpointerup={() => (drag = undefined)}
+		onpointercancel={() => (drag = undefined)}
+		ondblclick={(e) => onresize(undefined, e.altKey)}
+		onkeydown={keydown}
+	></div>
 </div>
 
 <style>
@@ -72,11 +120,27 @@
 	}
 
 	.column {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
 		width: var(--_col);
 		border-right: 1px solid var(--_border);
+	}
+
+	.handle {
+		position: absolute;
+		inset-block: 0;
+		right: -4px;
+		z-index: 1;
+		width: 8px;
+		cursor: col-resize;
+		touch-action: none;
+	}
+
+	.handle:focus-visible {
+		outline: 2px solid var(--_fg);
+		outline-offset: -3px;
 	}
 
 	ul {

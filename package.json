@@ -1,6 +1,6 @@
 {
 	"name": "svelte-finder",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A Finder-style file browser for Svelte 5: icons, list and columns views over any filesystem (in-memory, modern-monaco, just-bash).",
 	"license": "MIT",
 	"keywords": [

@@ -33,7 +33,11 @@
 		['--finder-font', 'ui-sans-serif, system-ui', 'The toolbar, headers, kinds and dates.'],
 		['--finder-mono', 'ui-monospace, Menlo', 'Entry names and the path crumbs below the root.'],
 		['--finder-radius', '0', 'Corners of the window, rows and buttons.'],
-		['--finder-column-width', '16rem', 'Width of each column in the columns view.'],
+		[
+			'--finder-column-width',
+			'16rem',
+			'Width of each column in the columns view, until the user drags its edge (Option-drag resizes all, a double-click resets).'
+		],
 		['--finder-icon-size', '3.5rem', 'Large icons: the icons view and the detail pane.']
 	];
 

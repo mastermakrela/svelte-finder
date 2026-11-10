@@ -182,6 +182,8 @@ interface FinderEntry {
 }
 ```
 
+Drag a column's right edge to resize it, as in Finder; hold Option to resize every column at once, and double-click the edge to go back to `--finder-column-width`. From the keyboard, the edge is a separator: Left and Right arrows change the width, Enter resets it. Widths last while the Finder is mounted.
+
 Listing happens in the browser only: during server rendering the Finder shows its loading skeleton. A directory that comes back into view (you return to it, or its column reappears) lists again in the background while its old entries stay on screen.
 
 ### Search
@@ -325,7 +327,7 @@ The Finder ships a neutral light look. Every colour, font and size is a custom p
 | `--finder-font`         | `ui-sans-serif, system-ui` | The toolbar, headers, kinds and dates               |
 | `--finder-mono`         | `ui-monospace, Menlo`      | Entry names and path crumbs                         |
 | `--finder-radius`       | `0`                        | Corners of the window, rows and buttons             |
-| `--finder-column-width` | `16rem`                    | Each column in the columns view                     |
+| `--finder-column-width` | `16rem`                    | Each column in the columns view, until dragged      |
 | `--finder-icon-size`    | `3.5rem`                   | Large icons: the icons view and the detail pane     |
 
 ```css
