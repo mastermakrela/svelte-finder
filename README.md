@@ -44,6 +44,8 @@ In the tree, a string or `Uint8Array` is a file and an object is a directory. Th
 
 `view`, `path`, `selected` and `query` are bindable. Clicks work as in Finder: a click selects, a double-click or Enter opens. A folder opens in place, a file goes to `onopen`. In the columns view a click on a folder already opens it as the next column. A click from the keyboard (Space) or a screen reader has no double-click to follow, so it opens.
 
+The arrow keys move focus to the nearest entry in that direction on screen, in every view and in search results, and follow the layout under `dir="rtl"`. They move focus only: `selected` stays where it was. An arrow with Shift, Alt, Ctrl or Meta held is left alone.
+
 `selected` is a **path**, not an entry. It stays with its folder: the highlight shows while that folder is open (or while it is a search match) and comes back when you return to it. The Finder changes it when the user clicks an entry, picks a file in Go to folder, or moves the selected entry; set it to `null` yourself to clear it.
 
 ```svelte
@@ -85,7 +87,7 @@ The toolbar has Back and Forward over the folders the Finder has shown. Reach th
 {/each}
 ```
 
-Cmd+Shift+G (Ctrl+Shift+G elsewhere) while the Finder has focus, the toolbar's Go to folder button, or `goToFolder()` opens Go to folder: type a path (absolute, or relative to the open folder), pick from what is in the folder typed so far, Tab completes, Enter goes there (a file opens its folder and is selected), Escape closes.
+Cmd+Shift+G (Ctrl+Shift+G elsewhere) while the Finder has focus, the toolbar's Go to folder button, or `goToFolder()` opens Go to folder: type a path (absolute, or relative to the open folder), pick from what is in the folder typed so far, Tab completes, Enter goes there (a file opens its folder and is selected), Escape closes. When navigating removes the focused entry or disables Back or Forward, focus stays in the Finder, so the shortcut keeps working.
 
 ### Date groups
 

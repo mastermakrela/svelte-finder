@@ -181,6 +181,17 @@
 		if (!q) cache.stopSearch();
 	});
 
+	// navigating removes the focused entry or crumb (or the entry Go to folder hands focus back to), or
+	// disables the focused Back or Forward: keep focus in the Finder, where Cmd+Shift+G still reaches
+	$effect.pre(() => {
+		void [open, q];
+		if (!finder?.contains(document.activeElement)) return;
+		void tick().then(() => {
+			const at = document.activeElement;
+			if (!finder?.contains(at) || at?.matches(':disabled')) finder?.focus({ preventScroll: true });
+		});
+	});
+
 	/** `selected` while it is on screen: in the open folder, the open folder itself (columns), or a match. */
 	const shown = $derived.by(() => {
 		if (!selected) return undefined;
@@ -383,10 +394,6 @@
 			query = '';
 			path = kind === 'directory' ? to : parentPath(to);
 			if (kind === 'file') selected = to;
-			// the dialog hands focus back to an entry the navigation removes: keep it in the Finder
-			void tick().then(() => {
-				if (!finder?.contains(document.activeElement)) finder?.focus({ preventScroll: true });
-			});
 		}}
 	/>
 

@@ -9,3 +9,5 @@ bun.lockb
 /static/
 PAPERCUTS.md
 .impeccable/
+.claude/skills/
+skills-lock.json

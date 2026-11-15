@@ -331,10 +331,53 @@ export interface EntryContext<E extends FinderEntry = FinderEntry> {
 	mover?: Mover;
 }
 
+const ARROWS: Record<string, [x: number, y: number]> = {
+	ArrowLeft: [-1, 0],
+	ArrowRight: [1, 0],
+	ArrowUp: [0, -1],
+	ArrowDown: [0, 1]
+};
+
+/** An arrow key focuses the nearest entry wholly past the focused one in that direction on screen, so
+ *  one rule serves the list, the grid and the columns, in either text direction. Up and Down stay in
+ *  line (a column, a grid column); Left and Right fall back to the nearest row when none is level. */
+function arrowFocus(event: KeyboardEvent) {
+	const dir = ARROWS[event.key];
+	const from = event.currentTarget;
+	if (!dir || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+	if (!(from instanceof HTMLElement)) return;
+	const finder = from.closest('.finder');
+	const a = from.getBoundingClientRect();
+	let best: HTMLElement | undefined;
+	let score = Infinity;
+	for (const el of finder?.querySelectorAll<HTMLElement>('.entry') ?? []) {
+		if (el === from || el.closest('.finder') !== finder) continue;
+		const b = el.getBoundingClientRect();
+		const gap =
+			dir[0] > 0
+				? b.left - a.right
+				: dir[0] < 0
+					? a.left - b.right
+					: dir[1] > 0
+						? b.top - a.bottom
+						: a.top - b.bottom;
+		if (gap < -1) continue;
+		if (dir[1] && (b.right <= a.left || b.left >= a.right)) continue;
+		// Up and Down line up edges, not centres: list entries are only as wide as their names
+		const across = dir[0]
+			? Math.abs(b.top + b.bottom - a.top - a.bottom) / 2
+			: Math.min(Math.abs(b.left - a.left), Math.abs(b.right - a.right));
+		if (gap + 2 * across < score) [score, best] = [gap + 2 * across, el];
+	}
+	if (!best) return;
+	event.preventDefault();
+	best.focus();
+}
+
 /** The element behind an entry: an `<a href>` when `href` gives one (a click follows it), else a button.
  *  A click selects and a double-click activates, as in Finder. A click with `detail` 0 comes from a
  *  keyboard or assistive technology, which has no double-click, so it activates; Enter is taken over
- *  so it activates instead of clicking. */
+ *  so it activates instead of clicking. Arrow keys move focus between entries. */
 export function entryElement<E extends FinderEntry>(
 	entry: E,
 	ctx: EntryContext<E>,
@@ -347,7 +390,8 @@ export function entryElement<E extends FinderEntry>(
 		...ctx.mover.source(entry.path),
 		...(entry.kind === 'directory' ? ctx.mover.target(entry.path) : {})
 	};
-	if (href !== undefined) return { tag: 'a', attrs: { href, oncontextmenu, ...drag } } as const;
+	if (href !== undefined)
+		return { tag: 'a', attrs: { href, oncontextmenu, onkeydown: arrowFocus, ...drag } } as const;
 	return {
 		tag: 'button',
 		attrs: {
@@ -358,7 +402,7 @@ export function entryElement<E extends FinderEntry>(
 			onclick: (event: MouseEvent) => (event.detail === 0 ? ctx.onactivate : ctx.onselect)(entry),
 			ondblclick: () => ctx.onactivate(entry),
 			onkeydown: (event: KeyboardEvent) => {
-				if (event.key !== 'Enter') return;
+				if (event.key !== 'Enter') return arrowFocus(event);
 				event.preventDefault();
 				ctx.onactivate(entry);
 			}

@@ -1,7 +1,8 @@
 import adapter from '@sveltejs/adapter-static';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [
@@ -25,6 +26,28 @@ export default defineConfig({
 
 	test: {
 		expect: { requireAssertions: true },
-		include: ['src/**/*.{test,spec}.{js,ts}']
+		projects: [
+			{
+				test: {
+					name: 'node',
+					include: ['src/**/*.{test,spec}.{js,ts}'],
+					exclude: [...configDefaults.exclude, 'src/**/*.browser.test.ts']
+				}
+			},
+			{
+				// arrow keys pick entries by their on-screen boxes, which only a real browser lays out
+				test: {
+					name: 'browser',
+					include: ['src/**/*.browser.test.ts'],
+					browser: {
+						enabled: true,
+						headless: true,
+						viewport: { width: 1280, height: 800 },
+						provider: playwright(),
+						instances: [{ browser: 'chromium' }]
+					}
+				}
+			}
+		]
 	}
 });

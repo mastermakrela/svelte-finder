@@ -78,6 +78,8 @@
 	}
 
 	function onkeydown(event: KeyboardEvent) {
+		// Enter and arrows also confirm or pick an input method's candidate
+		if (event.isComposing) return;
 		const last = suggestions.length - 1;
 		if (event.key === 'ArrowDown') active = active >= last ? -1 : active + 1;
 		else if (event.key === 'ArrowUp') active = active < 0 ? last : active - 1;
@@ -105,6 +107,7 @@
 			bind:this={input}
 			type="text"
 			role="combobox"
+			aria-labelledby="{id}-title"
 			aria-autocomplete="list"
 			aria-expanded={suggestions.length > 0}
 			aria-controls="{id}-list"

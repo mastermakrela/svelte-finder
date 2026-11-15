@@ -33,6 +33,7 @@
 		onresize: (width: number | undefined, every: boolean) => void;
 	} = $props();
 
+	const id = $props.id();
 	let rendered = $state(0);
 	let drag: { x: number; width: number } | undefined;
 
@@ -49,6 +50,7 @@
 </script>
 
 <div
+	{id}
 	class="column"
 	role="group"
 	aria-label={label}
@@ -97,6 +99,7 @@
 		role="separator"
 		aria-orientation="vertical"
 		aria-label="Resize column"
+		aria-controls={id}
 		aria-valuenow={rendered}
 		aria-valuemin={96}
 		tabindex="0"

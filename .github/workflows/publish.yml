@@ -37,6 +37,9 @@ jobs:
 
       - run: bun run check
 
+      # the browser tests (*.browser.test.ts) run in headless Chromium
+      - run: bunx playwright install --with-deps chromium
+
       - run: bun run test
 
       # `npm stage` needs npm >= 11.19; node 24 may bundle an older one.
